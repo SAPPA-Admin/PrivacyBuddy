@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAPPA PrivacyBuddy - Your Personal Privacy Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Simple animation for chat messages appearing */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chat-message {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        /* Typing indicator animation */
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: #9E9E9E;
+            display: inline-block;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl flex flex-col h-[90vh] max-h-[800px]">
+        <!-- Header -->
+        <header class="bg-blue-600 text-white p-4 rounded-t-2xl shadow-md flex items-center">
+            <!-- Custom Logo SVG -->
+            <svg width="48" height="48" viewBox="0 0 100 100" class="mr-4 flex-shrink-0">
+                <defs>
+                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#FF9933;" /> <!-- Saffron Orange -->
+                        <stop offset="25%" style="stop-color:#E34234;" /> <!-- Cinnabar (for Magenta feel) -->
+                        <stop offset="50%" style="stop-color:#138808;" /> <!-- Emerald Green -->
+                        <stop offset="75%" style="stop-color:#000080;" /> <!-- Peacock Blue -->
+                        <stop offset="100%" style="stop-color:#FFD700;" /> <!-- Golden Yellow -->
+                    </linearGradient>
+                </defs>
+                <path d="M50,5 C80,5 95,25 95,50 C95,75 80,95 50,95 C20,95 5,75 5,50 C5,25 20,5 50,5 Z" fill="url(#logoGradient)" stroke="#FFFFFF" stroke-width="3"/>
+                <g transform="translate(28, 30) scale(0.4)">
+                    <path d="M80,44.5 C80,58.7 68.7,70 54.5,70 L45.5,70 C31.3,70 20,58.7 20,44.5 C20,30.3 31.3,19 45.5,19 L54.5,19 C68.7,19 80,30.3 80,44.5 Z" fill="none" stroke="#FFFFFF" stroke-width="8"/>
+                    <path d="M50,55 C55.5,55 60,50.5 60,45 C60,39.5 55.5,35 50,35 C44.5,35 40,39.5 40,45 C40,50.5 44.5,55 50,55 Z" fill="#FFFFFF"/>
+                    <rect x="44" y="52" width="12" height="20" rx="6" ry="6" fill="#FFFFFF"/>
+                </g>
+            </svg>
+            <div>
+                <h1 class="text-xl font-bold">SAPPA PrivacyBuddy</h1>
+                <p class="text-sm text-blue-200">Your Personal Privacy Companion</p>
+            </div>
+        </header>
+
+        <!-- Chat Area -->
+        <main id="chat-area" class="flex-1 p-6 overflow-y-auto space-y-6">
+            <!-- Initial Message -->
+            <div class="chat-message">
+                <div class="bg-gray-200 p-4 rounded-lg rounded-bl-none max-w-xl">
+                    <p class="text-gray-800">Welcome! I am SAPPA PrivacyBuddy, an AI assistant designed to help you understand the **Personal Data Protection Act (PDPA) of Sri Lanka**. To get started, please tell me who you are.</p>
+                </div>
+            </div>
+             <div id="initial-options" class="chat-message flex flex-wrap gap-2 pt-2">
+                <button onclick="handlePersona('subject')" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 shadow-md">I am a Data Subject</button>
+                <button onclick="handlePersona('organization')" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 shadow-md">I represent an Organization</button>
+                <button onclick="handlePersona('legal')" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 shadow-md">I am a Legal Professional</button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="p-4 bg-gray-50 border-t border-gray-200 rounded-b-2xl">
+            <p class="text-xs text-gray-500 text-center">Disclaimer: This is an informational tool and does not constitute legal advice. Please consult with a qualified legal professional for specific advice.</p>
+        </footer>
+    </div>
+
+    <script>
+        let initialOptions = document.getElementById('initial-options');
+        const chatArea = document.getElementById('chat-area');
+
+        // --- KNOWLEDGE BASE CONTENT ---
+        // This is the information from the markdown document, structured for the AI.
+        const knowledgeBase = {
+            subject: {
+                prompt: "Great. As a data subject, you have specific rights. What would you like to know?",
+                options: {
+                    "Have my rights been violated?": "Your privacy may have been violated if an organization has:\n\n* Collected your personal information without your clear consent or another valid legal reason.\n* Used your data for a purpose different from the one you were told about.\n* Shared your data with a third party without your permission.\n* Refused to let you see, correct, or delete the data they hold on you.\n* Experienced a data breach and failed to protect your information.\n* Sent you marketing messages you did not sign up for.",
+                    "What are my rights?": "Under the PDPA, you have several key rights:\n\n1.  **Right to Access:** Ask an organization for a copy of the personal data they hold about you.\n2.  **Right to Rectification:** Request the correction of inaccurate or incomplete data.\n3.  **Right to Withdraw Consent:** Withdraw your consent for data processing at any time.\n4.  **Right to Erasure (Right to be Forgotten):** Request the deletion of your personal data under certain conditions.\n5.  **Right to Object:** Object to the processing of your data, especially for direct marketing.",
+                    "How do I file a complaint?": "There is a two-step process:\n\n1.  **Contact the Organization:** First, directly contact the organization (the 'Controller') that you believe has violated your rights. Make a written request citing your rights (e.g., the right to access or erasure).\n\n2.  **Lodge a Complaint with the DPA:** If the organization does not respond or you are not satisfied, you can file a formal complaint with the **Data Protection Authority (DPA) of Sri Lanka**. The DPA is the official body responsible for investigating and enforcing the PDPA."
+                }
+            },
+            organization: {
+                prompt: "Understood. As a Controller or Processor of data, you have important obligations. What do you need help with?",
+                options: {
+                    "What are our key obligations?": "You are likely violating the PDPA if you are not fulfilling these core obligations:\n\n* **Establish a Lawful Basis:** You must have a valid legal reason for processing data (e.g., consent, contract, legitimate interest).\n* **Appoint a Data Protection Officer (DPO):** In many cases, you are required to appoint a DPO.\n* **Maintain a Data Protection Management Program:** You must have internal policies and controls to demonstrate compliance.\n* **Conduct Data Protection Impact Assessments (DPIAs):** For high-risk processing, you must assess the potential privacy impact.\n* **Ensure Data Security:** You must implement appropriate technical and organizational measures to protect data.\n* **Report Data Breaches:** You must notify the DPA of certain types of data breaches.\n* **Respect Data Subject Rights:** You must have procedures to respond to individuals' requests.\n* **Manage Third-Party Processors:** You must have contracts ensuring any third parties you use are also compliant.",
+                }
+            },
+            legal: {
+                prompt: "Acknowledged. For legal professionals, understanding the framework is key. What area are you focusing on?",
+                options: {
+                    "What are the key legal considerations?": "Key considerations include:\n\n* **The Data Protection Authority (DPA):** This is the central regulator. It investigates complaints, issues guidelines, and can impose penalties up to LKR 10 million per instance.\n\n* **International Precedent (GDPR):** Sri Lanka's PDPA is modeled on the EU's GDPR. Rulings and interpretations from the EU are highly persuasive and can be used as a reference.\n\n* **Key Questions for a Case:** When adjudicating, consider:\n    * What was the lawful basis for processing?\n    * Was consent freely given, specific, informed, and unambiguous?\n    * Were security measures adequate?\n    * Were transparency obligations fulfilled?\n    * How were the data subject's rights handled?",
+                }
+            }
+        };
+
+        // --- UI LOGIC ---
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.classList.add('chat-message');
+            typingDiv.innerHTML = `
+                <div class="bg-gray-200 p-4 rounded-lg rounded-bl-none inline-block">
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            `;
+            chatArea.appendChild(typingDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message', 'flex', 'justify-end');
+            messageDiv.innerHTML = `
+                <div class="bg-blue-500 text-white p-4 rounded-lg rounded-br-none max-w-xl">
+                    <p>${text}</p>
+                </div>
+            `;
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function addAiMessage(htmlContent, options = {}) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message');
+            
+            // Format the text content to replace newlines with <br> tags for proper HTML rendering
+            const formattedContent = htmlContent.replace(/\n/g, '<br>');
+
+            messageDiv.innerHTML = `
+                <div class="bg-gray-200 p-4 rounded-lg rounded-bl-none max-w-xl">
+                    <div class="text-gray-800">${formattedContent}</div>
+                </div>
+            `;
+
+            if (Object.keys(options).length > 0) {
+                const optionsDiv = document.createElement('div');
+                optionsDiv.classList.add('chat-message', 'flex', 'flex-wrap', 'gap-2', 'pt-2');
+                for (const [key, value] of Object.entries(options)) {
+                    const button = document.createElement('button');
+                    button.textContent = key;
+                    button.classList.add('bg-white', 'hover:bg-gray-100', 'text-blue-600', 'font-semibold', 'py-2', 'px-4', 'rounded-full', 'transition', 'duration-300', 'border', 'border-blue-500', 'shadow-sm');
+                    button.onclick = () => handleOptionClick(key, value);
+                    optionsDiv.appendChild(button);
+                }
+                messageDiv.appendChild(optionsDiv);
+            }
+
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function handlePersona(persona) {
+            // Remove initial persona buttons
+            if (initialOptions) {
+                initialOptions.remove();
+            }
+
+            // Add user's choice to chat
+            let personaText = '';
+            if (persona === 'subject') personaText = 'I am a Data Subject';
+            if (persona === 'organization') personaText = 'I represent an Organization';
+            if (persona === 'legal') personaText = 'I am a Legal Professional';
+            addUserMessage(personaText);
+
+            const personaData = knowledgeBase[persona];
+            
+            showTypingIndicator();
+            setTimeout(() => {
+                removeTypingIndicator();
+                addAiMessage(personaData.prompt, personaData.options);
+            }, 1000); // Simulate AI "thinking"
+        }
+
+        function handleOptionClick(question, answer) {
+            // Remove all option buttons after one is clicked
+            const allOptionButtons = chatArea.querySelectorAll('.chat-message button');
+            allOptionButtons.forEach(btn => {
+                const parent = btn.parentNode;
+                if(parent && !parent.classList.contains('bg-gray-500')) { // don't remove the 'ask something else' button
+                    parent.remove();
+                }
+            });
+
+            addUserMessage(question);
+
+            showTypingIndicator();
+            setTimeout(() => {
+                removeTypingIndicator();
+                addAiMessage(answer);
+                // After providing an answer, offer to go back
+                const backButtonDiv = document.createElement('div');
+                backButtonDiv.classList.add('chat-message', 'pt-2');
+                backButtonDiv.innerHTML = `<button onclick="resetConversation()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 shadow-md">Ask something else</button>`;
+                chatArea.appendChild(backButtonDiv);
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }, 1000);
+        }
+        
+        function resetConversation() {
+            // Clear everything except the first AI message
+            const firstMessage = chatArea.children[0];
+            chatArea.innerHTML = '';
+            chatArea.appendChild(firstMessage);
+            
+            // Re-add the initial options
+            const newInitialOptions = document.createElement('div');
+            newInitialOptions.id = 'initial-options';
+            newInitialOptions.className = 'chat-message flex flex-wrap gap-2 pt-2';
+            newInitialOptions.innerHTML = `
+                <button onclick="handlePersona('subject')" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 shadow-md">I am a Data Subject</button>
+                <button onclick="handlePersona('organization')" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 shadow-md">I represent an Organization</button>
+                <button onclick="handlePersona('legal')" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 shadow-md">I am a Legal Professional</button>
+            `;
+            chatArea.appendChild(newInitialOptions);
+            initialOptions = newInitialOptions; // re-assign the global variable
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+    </script>
+</body>
+</html>
